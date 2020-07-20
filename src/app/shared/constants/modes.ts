@@ -3,7 +3,7 @@
  *
  * @interface ModeEntry
  */
-interface ModeEntry {
+export interface ModeEntry {
     /**
      * The key of the entry type, used by liquidctl to specify an rgb display mode.
      *
