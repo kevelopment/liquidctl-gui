@@ -37,7 +37,7 @@ export class IpcEventService {
   /**
    * Handles the setting of color
    *
-   * @param {Event} e the ipc event.
+   * @param {Event} e the event created and triggered by the ipcRenderer.
    * @param {ColorChangeConfig} config the config provided by the event.
    * @memberof IpcEventService
    */
