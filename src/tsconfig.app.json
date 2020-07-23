@@ -4,15 +4,11 @@
     "outDir": "../out-tsc/app",
     "module": "es2015",
     "baseUrl": "",
-    "types": []
+    "types": [],
+    "target": "es2015"
   },
-  "include": [
-    "**/*.ts",
-
-  ],
-  "exclude": [
-    "**/*.spec.ts"
-  ],
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.spec.ts"],
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true,
