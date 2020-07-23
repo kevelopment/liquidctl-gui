@@ -1,28 +1,27 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from './shared/components';
-
-import { HomeRoutingModule } from './home/home-routing.module';
-import { DetailRoutingModule } from './detail/detail-routing.module';
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { DetailRoutingModule } from "./detail/detail-routing.module";
+import { HomeRoutingModule } from "./home/home-routing.module";
+import { PageNotFoundComponent } from "./shared/components";
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
+    path: "",
+    redirectTo: "home/colors",
+    pathMatch: "full",
   },
   {
-    path: '**',
-    component: PageNotFoundComponent
-  }
+    path: "**",
+    component: PageNotFoundComponent,
+  },
 ];
 
 @NgModule({
   imports: [
     RouterModule.forRoot(routes),
     HomeRoutingModule,
-    DetailRoutingModule
+    DetailRoutingModule,
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

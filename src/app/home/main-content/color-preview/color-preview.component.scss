@@ -1,0 +1,27 @@
+// Specific for the rendered logo
+.circle {
+  border-color: black;
+  border-radius: 100%;
+  border-style: solid;
+  border-width: 1vw;
+  width: 30vw;
+  height: 30vw;
+}
+
+.logo {
+  font-size: 3vw;
+  color: black;
+  height: 30vw;
+}
+
+.logo,
+.logo h1 {
+  text-align: center;
+  width: 30vw;
+  margin: auto;
+}
+
+h1 {
+  -webkit-user-select: none;
+  user-select: none;
+}

@@ -1,7 +1,18 @@
-<div class="container">
-  <h1 class="title">
-    {{ 'PAGES.HOME.TITLE' | translate }}
-  </h1>
+<!-- TODO container should get dark, light or default class -->
+<nav mat-tab-nav-bar mat-stretch-tabs class="example-stretched-tabs">
+  <a
+    mat-tab-link
+    *ngFor="let site of sites"
+    (click)="onNavTabClick(site.path)"
+    [active]="activeSite === site.path"
+  >
+    {{ site.name }}
+  </a>
+</nav>
 
-  <a routerLink="/detail">{{ 'PAGES.HOME.GO_TO_DETAIL' | translate }}</a>
+<div class="container">
+  <router-outlet></router-outlet>
+  <!-- <h1 class="title"> -->
+  <!-- {{ "PAGES.HOME.TITLE" | translate }} -->
+  <!-- </h1> -->
 </div>

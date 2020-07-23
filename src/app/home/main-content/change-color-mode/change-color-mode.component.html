@@ -1,0 +1,25 @@
+<color-preview
+  [circleColor]="circleColor"
+  [textColor]="textColor"
+></color-preview>
+
+<div style="display: flex; flex-direction: column;">
+  <div style="display: flex; justify-content: space-between;">
+    <label for="circle-color">Circle Color</label>
+    <input
+      id="circle-color"
+      class="color-picker"
+      [(colorPicker)]="circleColor"
+      [style.background]="circleColor"
+    />
+  </div>
+  <div style="display: flex; justify-content: space-between;">
+    <label for="text-color">Textcolor</label>
+    <input
+      id="text-color"
+      class="color-picker"
+      [(colorPicker)]="textColor"
+      [style.background]="textColor"
+    />
+  </div>
+</div>
