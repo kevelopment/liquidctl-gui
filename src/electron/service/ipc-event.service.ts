@@ -1,5 +1,6 @@
 import { IpcMain, IpcMainEvent } from "electron";
 import { ColorChangeConfig } from "../types/color-change-config";
+import { exec as Exec } from "child_process";
 
 // @Injectable({
 //   providedIn: "root",
@@ -19,21 +20,21 @@ export class IpcEventService {
    * @type {ChildProcess}
    * @memberof IpcEventService
    */
-  exec: Function;
+  exec: typeof Exec;
 
   /**
    * Creates an instance of IpcEventService.
    * @param {IpcMain} ipcMain
-   * @param {Function} exec
+   * @param {ChildProcess} exec
    * @memberof IpcEventService
    */
-  constructor(ipcMain: IpcMain, exec: Function) {
+  constructor(ipcMain: IpcMain, exec: any) {
     this.ipcMain = ipcMain;
     this.exec = exec;
   }
 
   public initialize(): void {
-    this.ipcMain.on("config:setColor", this.setColor);
+    this.ipcMain.on("config:setColor", (e, config) => this.setColor(e, config));
   }
 
   /**
@@ -43,25 +44,24 @@ export class IpcEventService {
    * @param {ColorChangeConfig} config the config provided by the event.
    * @memberof IpcEventService
    */
-  public setColor(e: IpcMainEvent, config: ColorChangeConfig): void {
+  setColor(e: IpcMainEvent, config: ColorChangeConfig): void {
     if (!config.mode || !config.textColor || !config.circleColor) {
       throw "mode and color must not be empty!";
     }
 
+    // TODO: create sth. like a command factory
+    const commands: string[] = [];
     // set sync by default
-    let colorOptions = `sync color ${config.textColor.slice(1)}`;
     if (config.textColor !== config.circleColor) {
-      const newTextColor = config.textColor.slice(1);
-      const newCircleColor = config.circleColor.slice(1);
-      colorOptions = `ring color ${config.mode.key} ${newCircleColor} logo color ${config.mode.key} ${newTextColor}`;
+      commands.push(`liquidctl set logo color ${config.mode.key} ${config.textColor.slice(1)}`);
+      commands.push(`liquidctl set ring color ${config.mode.key} ${config.circleColor.slice(1)}`);
     }
-
-    console.log(colorOptions);
-    // execute the command
-    this.exec(`sudo liquidctl set ${colorOptions}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`childProcess error: ${error}`);
-      }
-    });
+    else {
+      commands.push(`liquidctl set sync color ${config.mode.key} ${config.textColor.slice(1)}`);
+    }
+    
+    console.log();
+    // execute the command(s)
+    this.exec(commands.join(';'));
   }
 }
