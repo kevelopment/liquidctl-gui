@@ -1,6 +1,8 @@
-import { app, BrowserWindow, screen } from "electron";
+import { exec } from "child_process";
+import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
+import { IpcEventService } from "./src/electron/service/ipc-event.service";
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -21,6 +23,9 @@ function createWindow(): BrowserWindow {
       allowRunningInsecureContent: serve ? true : false,
     },
   });
+
+  const ipcService = new IpcEventService(ipcMain, exec);
+  ipcService.initialize();
 
   if (serve) {
     // win.webContents.openDevTools();

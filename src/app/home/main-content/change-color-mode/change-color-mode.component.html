@@ -4,22 +4,41 @@
 ></color-preview>
 
 <div style="display: flex; flex-direction: column;">
-  <div style="display: flex; justify-content: space-between;">
-    <label for="circle-color">Circle Color</label>
+  <mat-form-field>
+    <mat-label>Circle Color</mat-label>
     <input
+      matInput
+      type="color"
       id="circle-color"
       class="color-picker"
-      [(colorPicker)]="circleColor"
-      [style.background]="circleColor"
+      [(ngModel)]="circleColor"
     />
-  </div>
-  <div style="display: flex; justify-content: space-between;">
-    <label for="text-color">Textcolor</label>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Text Color</mat-label>
     <input
-      id="text-color"
+      matInput
+      type="color"
+      id="circle-color"
       class="color-picker"
-      [(colorPicker)]="textColor"
-      [style.background]="textColor"
+      [(ngModel)]="textColor"
     />
-  </div>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Mode</mat-label>
+    <mat-select
+      (selectionChange)="onModeChange($event)"
+      [(value)]="selectedMode.key"
+    >
+      <mat-option *ngFor="let mode of availableModes" [value]="mode.key">
+        {{ mode.key }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="submitColorChange()">
+    Submit
+  </button>
 </div>

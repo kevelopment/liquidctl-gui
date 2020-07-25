@@ -1,4 +1,4 @@
-import { ModeEntry } from "app/shared/constants/modes";
+import { ModeEntry } from "../constants/modes";
 
 /**
  * The configuration object used to describe a Color and Mode change.
@@ -15,10 +15,17 @@ export interface ColorChangeConfig {
    */
   mode: ModeEntry;
   /**
-   * The color value (in hex) to be used.
+   * The color value of the rim (in hex) to be used.
    *
    * @type {string}
    * @memberof ColorChangeConfig
    */
-  color: string;
+  circleColor: string;
+  /**
+   * The color value of the text (in hex) to be used.
+   *
+   * @type {string}
+   * @memberof ColorChangeConfig
+   */
+  textColor: string;
 }

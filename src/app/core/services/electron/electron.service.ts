@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import * as childProcess from "child_process";
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
-import { ipcRenderer, remote, webFrame } from "electron";
+import { ipcMain, ipcRenderer, remote, webFrame } from "electron";
 import * as fs from "fs";
-import { ColorChangeConfig } from "../types/color-change-config";
+import { ColorChangeConfig } from "../../../../electron/types/color-change-config";
 
 @Injectable({
   providedIn: "root",
@@ -13,9 +13,10 @@ export class ElectronService {
   ipcRenderer: typeof ipcRenderer;
   webFrame: typeof webFrame;
   remote: typeof remote;
+  exec: any;
   childProcess: typeof childProcess;
   fs: typeof fs;
-
+  ipcMain: typeof ipcMain;
   /**
    * Determine wheter the app is running as electron app or just locally in the browser.
    *
@@ -38,10 +39,12 @@ export class ElectronService {
 
     // Conditional imports
     this.ipcRenderer = window.require("electron").ipcRenderer;
+    this.ipcMain = window.require("electron").ipcMain;
     this.webFrame = window.require("electron").webFrame;
     this.remote = window.require("electron").remote;
 
     this.childProcess = window.require("child_process").exec;
+    this.exec = window.require("child_process").exec;
     this.fs = window.require("fs");
   }
 
@@ -51,7 +54,7 @@ export class ElectronService {
    * @param {ColorChangeConfig} config the configuration object.
    * @memberof ElectronService
    */
-  changeColor(config: ColorChangeConfig) {
+  changeColor(config: ColorChangeConfig): void {
     this.ipcRenderer.send("config:setColor", config);
   }
 }

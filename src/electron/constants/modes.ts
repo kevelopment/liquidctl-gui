@@ -33,7 +33,7 @@ export interface ModeEntry {
  * @export
  * @class MODES
  */
-export class MODES {
+export class Modes {
   static FIXED: ModeEntry = { key: "fixed", minValue: 1, maxValue: 1 };
   static SUPER_FIXED: ModeEntry = {
     key: "super-fixed",
@@ -111,4 +111,12 @@ export class MODES {
   };
   static LOADING: ModeEntry = { key: "loading", minValue: 1, maxValue: 1 };
   static WINGS: ModeEntry = { key: "wings", minValue: 1, maxValue: 1 };
+
+  static values(): ModeEntry[] {
+    return Object.keys(Modes).map((key) => Modes[key]);
+  }
+
+  static getByKey(key: string): ModeEntry {
+    return Object.values(Modes).find((mode) => mode.key === key);
+  }
 }
