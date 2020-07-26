@@ -2,16 +2,61 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Angular Electron</title>
+    <title>LiquidCtl - UI</title>
     <base href="/" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico" />
+
+    <style type="text/css">
+      body,
+      html {
+        height: 100%;
+      }
+
+      .lds {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+
+      .lds-dual-ring {
+        display: inline-block;
+        width: 128px;
+        height: 128px;
+      }
+
+      .lds-dual-ring:after {
+        content: " ";
+        display: block;
+        width: 92px;
+        height: 92px;
+        margin: 1px;
+        border-radius: 50%;
+        border: 5px solid #3f51b5;
+        border-color: #3f51b5 #3f51b5 transparent transparent;
+        animation: lds-dual-ring 1.2s linear infinite;
+      }
+
+      @keyframes lds-dual-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
     <app-root>
-      loading...
-      <mat-progress-spinner [mode]="indeterminate"></mat-progress-spinner>
+      <div class="lds">
+        <div class="lds-dual-ring"></div>
+      </div>
     </app-root>
   </body>
 </html>
