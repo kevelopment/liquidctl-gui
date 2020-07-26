@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { MatListModule } from "@angular/material/list";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTabsModule } from "@angular/material/tabs";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -28,6 +29,7 @@ import { StatusInfoComponent } from "./main-content/status-info/status-info.comp
     FormsModule,
     HomeRoutingModule,
     MatSelectModule,
+    MatListModule,
     MatButtonModule,
     MatTabsModule,
     MatInputModule,

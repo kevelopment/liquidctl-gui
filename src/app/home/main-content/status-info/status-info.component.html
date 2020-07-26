@@ -1,1 +1,5 @@
-<p>status-info works!</p>
+<mat-list role="list">
+  <mat-list-option *ngFor="let device of devices">
+    Device ID {{ device.id }} : {{ device.name }}
+  </mat-list-option>
+</mat-list>

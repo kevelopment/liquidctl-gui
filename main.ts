@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import * as childProcess from "child_process";
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
@@ -24,7 +24,7 @@ function createWindow(): BrowserWindow {
     },
   });
 
-  const ipcService = new IpcEventService(ipcMain, exec);
+  const ipcService = new IpcEventService(ipcMain, childProcess);
   ipcService.initialize();
 
   if (serve) {
