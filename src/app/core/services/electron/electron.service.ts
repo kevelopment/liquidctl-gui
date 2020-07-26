@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
+import { DeviceService } from "@shared/services/device.service";
 import * as childProcess from "child_process";
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
 import { ipcMain, ipcRenderer, remote, webFrame } from "electron";
+import { LiquidCtlEvents } from "electron/constants/events";
 import * as fs from "fs";
 import { ColorChangeConfig } from "../../../../electron/types/color-change-config";
-import { LiquidCtlEvents } from "electron/constants/events";
 
 @Injectable({
   providedIn: "root",
@@ -33,7 +34,7 @@ export class ElectronService {
    * Creates an instance of ElectronService.
    * @memberof ElectronService
    */
-  constructor() {
+  constructor(private deviceService: DeviceService) {
     if (!this.isElectron) {
       return;
     }
@@ -59,7 +60,30 @@ export class ElectronService {
     this.ipcRenderer.send(LiquidCtlEvents.SET_COLOR, config);
   }
 
-  getStatus() {
-    return this.ipcRenderer.send(LiquidCtlEvents.GET_STATUS);
+  /**
+   * Fetches the list of all available devices.
+   *
+   * @memberof ElectronService
+   */
+  getList(): void {
+    const devices = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_LIST);
+    console.log(devices);
+    this.deviceService.setAll(devices);
+  }
+
+  getStatus(): void {
+    const status = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_STATUS);
+    console.log(status);
+  }
+
+  /**
+   * Initializes the liquidctl.
+   *
+   * @memberof ElectronService
+   */
+  initialize(): void {
+    const response = this.ipcRenderer.sendSync(LiquidCtlEvents.INITIALIZE_ALL);
+    console.log("initialize:", response);
+    this.getList();
   }
 }
