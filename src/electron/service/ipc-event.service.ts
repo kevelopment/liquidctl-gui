@@ -1,10 +1,8 @@
 import { IpcMain, IpcMainEvent } from "electron";
 import { ColorChangeConfig } from "../types/color-change-config";
 import { exec as Exec } from "child_process";
+import { LiquidCtlEvents } from "../constants/events";
 
-// @Injectable({
-//   providedIn: "root",
-// })
 export class IpcEventService {
   /**
    * A reference to the ipcMain object of electron.
@@ -34,7 +32,7 @@ export class IpcEventService {
   }
 
   public initialize(): void {
-    this.ipcMain.on("config:setColor", (e, config) => this.setColor(e, config));
+    this.ipcMain.on(LiquidCtlEvents.SET_COLOR, (e, config) => this.setColor(e, config));
   }
 
   /**
@@ -60,8 +58,13 @@ export class IpcEventService {
       commands.push(`liquidctl set sync color ${config.mode.key} ${config.textColor.slice(1)}`);
     }
     
-    console.log();
     // execute the command(s)
-    this.exec(commands.join(';'));
+    const execCommands = commands.join('; ');
+    console.log(execCommands);
+    this.exec(execCommands, (error, stdoud, stderr) => {
+      console.log('error: ', error);
+      console.log('stdout: ', stdoud);
+      console.log('stderr: ', stderr);
+    });
   }
 }

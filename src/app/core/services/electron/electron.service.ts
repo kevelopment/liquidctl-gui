@@ -5,6 +5,7 @@ import * as childProcess from "child_process";
 import { ipcMain, ipcRenderer, remote, webFrame } from "electron";
 import * as fs from "fs";
 import { ColorChangeConfig } from "../../../../electron/types/color-change-config";
+import { LiquidCtlEvents } from "electron/constants/events";
 
 @Injectable({
   providedIn: "root",
@@ -55,6 +56,10 @@ export class ElectronService {
    * @memberof ElectronService
    */
   changeColor(config: ColorChangeConfig): void {
-    this.ipcRenderer.send("config:setColor", config);
+    this.ipcRenderer.send(LiquidCtlEvents.SET_COLOR, config);
+  }
+
+  getStatus() {
+    return this.ipcRenderer.send(LiquidCtlEvents.GET_STATUS);
   }
 }
