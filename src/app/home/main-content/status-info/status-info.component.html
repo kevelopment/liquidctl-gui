@@ -1,5 +1,6 @@
-<mat-list role="list">
-  <mat-list-option *ngFor="let device of devices">
+<mat-progress-spinner mode="indterminate" *ngIf="isLoading"></mat-progress-spinner>
+<div>
+  <mat-card *ngFor="let device of devices">
     Device ID {{ device.id }} : {{ device.name }}
-  </mat-list-option>
-</mat-list>
+  </mat-card>
+</div>

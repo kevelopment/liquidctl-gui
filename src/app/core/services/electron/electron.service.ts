@@ -7,6 +7,7 @@ import { ipcMain, ipcRenderer, remote, webFrame } from "electron";
 import { LiquidCtlEvents } from "electron/constants/events";
 import * as fs from "fs";
 import { ColorChangeConfig } from "../../../../electron/types/color-change-config";
+import { DeviceConfig } from "electron/types/device-config";
 
 @Injectable({
   providedIn: "root",
@@ -60,18 +61,24 @@ export class ElectronService {
     this.ipcRenderer.send(LiquidCtlEvents.SET_COLOR, config);
   }
 
+  saveColor(config: ColorChangeConfig): void {
+    this.ipcRenderer.send(LiquidCtlEvents.SAVE_COLOR, config);
+  }
+
   /**
    * Fetches the list of all available devices.
    *
    * @memberof ElectronService
    */
-  getList(): void {
+  getList(): DeviceConfig[] {
     const devices = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_LIST);
-    console.log(devices);
     this.deviceService.setAll(devices);
+    console.log(devices);
+    return devices;
   }
 
   getStatus(): void {
+    // const status = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_STATUS);
     const status = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_STATUS);
     console.log(status);
   }
@@ -82,8 +89,8 @@ export class ElectronService {
    * @memberof ElectronService
    */
   initialize(): void {
-    const response = this.ipcRenderer.sendSync(LiquidCtlEvents.INITIALIZE_ALL);
-    console.log("initialize:", response);
+    // const response = this.ipcRenderer.sendSync(LiquidCtlEvents.INITIALIZE_ALL);
+    // console.log("initialize:", response);
     this.getList();
   }
 }

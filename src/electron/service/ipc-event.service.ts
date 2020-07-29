@@ -3,6 +3,9 @@ import { IpcMain, IpcMainEvent } from "electron";
 import { LiquidCtlEvents } from "../constants/events";
 import { ColorChangeConfig } from "../types/color-change-config";
 import { DeviceConfig } from "../types/device-config";
+import * as sudo from "sudo-prompt";
+import * as fs from "fs";
+import * as path from "path";
 
 export class IpcEventService {
   /**
@@ -21,6 +24,8 @@ export class IpcEventService {
    */
   childProcess: typeof ChildProcess;
 
+  sudoOptions: any;
+
   /**
    * Creates an instance of IpcEventService.
    * @param {IpcMain} ipcMain
@@ -30,14 +35,88 @@ export class IpcEventService {
   constructor(ipcMain: IpcMain, childProcess: typeof ChildProcess) {
     this.ipcMain = ipcMain;
     this.childProcess = childProcess;
+    this.sudoOptions = {
+      name: "LiquidCtl UI",
+    };
   }
 
   public initialize(): void {
     this.ipcMain.on(LiquidCtlEvents.SET_COLOR, (e, config) =>
       this.setColor(e, config)
     );
+    this.ipcMain.on(LiquidCtlEvents.SAVE_COLOR, (e, config) => {
+      this.saveColor(e, config);
+    });
     this.ipcMain.on(LiquidCtlEvents.GET_STATUS, (e) => this.getStatus(e));
     this.ipcMain.on(LiquidCtlEvents.GET_LIST, (e) => this.getList(e));
+  }
+
+  /**
+   * Saves given color configuration for autostart.
+   *
+   * @param e
+   * @param config
+   */
+  saveColor(e: IpcMainEvent, config: any) {
+    console.log("creating the shell script @ usr/Libary");
+    const liquidCfgLocation = "/usr/local/share/LiquidCfg.sh";
+    const liquidCfgTemplateLocation = path.join(
+      __dirname,
+      "../template-files/liquidcfg.sh"
+    );
+    const launchdLocation = "/Library/LaunchDaemons/liquidctl.plist";
+    const launchdTemplateLocation = path.join(__dirname, "../template-files/liquidctl.plist");
+
+    console.log("replacing the template file content");
+    this.replaceTemplateContent(liquidCfgTemplateLocation, config);
+
+    // if this is run for the first time
+    // if (!fs.existsSync(liquidCfgLocation)) {
+    
+    // 1. Create settings file at /usr/local/share/LiquidCfg.sh
+    console.log(
+      `copying the file from ${liquidCfgTemplateLocation} to ${liquidCfgLocation}`
+    );
+    fs.copyFileSync(liquidCfgTemplateLocation, liquidCfgLocation);
+    
+    // 2. Make Settings file executable and editable.
+    console.log(`executing chmod 777 on ${liquidCfgLocation}`);
+    this.childProcess.execSync(`chmod 777 ${liquidCfgLocation}`);
+    
+    // 3. Create startup file at /Library/LaunchDaemons.
+    console.log(`creating the launchd config @ ${launchdLocation}`);
+    sudo.exec(`cp ${launchdTemplateLocation} ${launchdLocation}`, this.sudoOptions, function(e, s, a) {
+      if (e) throw e;
+      console.log("stdout: ", a);
+    });
+
+    // fs.copyFileSync(
+    //   path.join(__dirname, "../template-files/liquidctl.plist"),
+    //   launchdLocation
+    // );
+    // 4. Add to system startup.
+    console.log(`adding ${launchdLocation} to startup`);
+    this.childProcess.execSync(`launchctl load ${launchdLocation}`);
+    
+    
+    console.log('added to startup.. should work now?');
+    // } else {
+    // console.log("the file already exists!");
+    // otherwise we can simply overwrite the existing config file
+    // fs.copyFileSync(liquidCfgTemplateLocation, liquidCfgLocation);
+    // }
+  }
+
+  replaceTemplateContent(liquidCfgTemplateLocation: string, config: any): void {
+    const data = fs.readFileSync(liquidCfgTemplateLocation).toString();
+    const newData = data.replace(
+      "{{ config }}",
+      this.createCommandsFromConfig(config).join("\n\r")
+    );
+
+    console.log("new data: ", newData);
+
+    fs.writeFileSync(liquidCfgTemplateLocation, newData);
   }
 
   /**
@@ -52,9 +131,19 @@ export class IpcEventService {
       throw "mode and color must not be empty!";
     }
 
-    // TODO: create sth. like a command factory
-    const commands: string[] = [];
-    // set sync by default
+    const commands = this.createCommandsFromConfig(config);
+
+    // execute the command(s)
+    console.log(commands);
+    this.childProcess.exec(commands.join(";"), (error, stdoud, stderr) => {
+      console.log("error: ", error);
+      console.log("stdout: ", stdoud);
+      console.log("stderr: ", stderr);
+    });
+  }
+
+  private createCommandsFromConfig(config: ColorChangeConfig): string[] {
+    const commands = [];
     if (config.textColor !== config.circleColor) {
       commands.push(
         `liquidctl set logo color ${config.mode.key} ${config.textColor.slice(
@@ -73,15 +162,7 @@ export class IpcEventService {
         )}`
       );
     }
-
-    // execute the command(s)
-    const execCommands = commands.join("; ");
-    console.log(execCommands);
-    this.childProcess.exec(execCommands, (error, stdoud, stderr) => {
-      console.log("error: ", error);
-      console.log("stdout: ", stdoud);
-      console.log("stderr: ", stderr);
-    });
+    return commands;
   }
 
   /**
@@ -91,6 +172,7 @@ export class IpcEventService {
    * @memberof IpcEventService
    */
   getStatus(event: IpcMainEvent): void {
+    console.log("getting status: ", event);
     const stdout = this.childProcess.execSync(`liquidctl status`);
     event.returnValue = stdout;
   }
@@ -102,6 +184,8 @@ export class IpcEventService {
    * @memberof IpcEventService
    */
   initializeAll(event: IpcMainEvent): void {
+    console.log("initializing all: ", event);
+
     const stdout = this.childProcess.execSync("liquidctl initialize all");
     event.returnValue = stdout;
   }
@@ -118,14 +202,17 @@ export class IpcEventService {
   getList(event: IpcMainEvent): void {
     const stdout = this.childProcess.execSync("liquidctl list").toString();
 
-    const lines = stdout.split(/[^\r\n]+/g);
-    const deviceConfig = lines.map((line) => {
-      const [deviceId, name] = line.split(":");
+    // parse the response into actual devices
+    const lines = stdout.match(/[^\r\n]+/g);
+    const devices = lines.map((line) => {
+      const [deviceId, deviceName] = line.split(":");
+      const id = deviceId.charAt(deviceId.length - 1).trim();
       return {
-        id: parseInt(deviceId[deviceId.length].trim()),
-        name: name.trim(),
+        id: parseInt(id),
+        name: deviceName.trim(),
       } as DeviceConfig;
     });
-    event.returnValue = deviceConfig;
+
+    event.returnValue = devices;
   }
 }

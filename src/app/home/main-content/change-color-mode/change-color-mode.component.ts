@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { MatSelectChange } from "@angular/material/select";
 import { ElectronService } from "app/core/services";
 import { ModeEntry, Modes } from "electron/constants/modes";
+import { ColorChangeConfig } from "electron/types/color-change-config";
 
 @Component({
   selector: "app-change-color-mode",
@@ -25,21 +26,33 @@ export class ChangeColorModeComponent implements OnInit {
   }
 
   submitColorChange(): void {
+    // send request to change the color
+    this.electronService.changeColor(this.getConfig());
+  }
+
+  getConfig(): ColorChangeConfig {
     if (!this.circleColor) {
       this.circleColor = this.textColor;
     }
     if (!this.textColor) {
       this.textColor = this.circleColor;
     }
-    // send request to change the color
-    this.electronService.changeColor({
+
+    return {circleColor: this.circleColor,
+      textColor: this.textColor,
+      mode: Modes.FIXED};
+  } 
+
+  onModeChange(event: MatSelectChange): void {
+    this.selectedMode = Modes.getByKey(event.value);
+  }
+
+  saveChangesForStartup(): void {
+    // send request to save the color for autostart
+    this.electronService.saveColor({
       circleColor: this.circleColor,
       textColor: this.textColor,
       mode: Modes.FIXED,
     });
-  }
-
-  onModeChange(event: MatSelectChange): void {
-    this.selectedMode = Modes.getByKey(event.value);
   }
 }

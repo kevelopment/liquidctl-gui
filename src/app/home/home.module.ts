@@ -14,6 +14,8 @@ import { HomeComponent } from "./home.component";
 import { ChangeColorModeComponent } from "./main-content/change-color-mode/change-color-mode.component";
 import { ColorPreviewComponent } from "./main-content/color-preview/color-preview.component";
 import { StatusInfoComponent } from "./main-content/status-info/status-info.component";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatCardModule} from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -29,12 +31,13 @@ import { StatusInfoComponent } from "./main-content/status-info/status-info.comp
     FormsModule,
     HomeRoutingModule,
     MatSelectModule,
-    MatListModule,
     MatButtonModule,
     MatTabsModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
     MatInputModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-  ],
+  ]
 })
 export class HomeModule {}

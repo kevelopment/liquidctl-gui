@@ -1,34 +1,43 @@
 import { Injectable } from "@angular/core";
 import { DeviceConfig } from "electron/types/device-config";
+import { Observable, Observer, of, BehaviorSubject } from "rxjs";
 
 @Injectable({
   providedIn: "root",
 })
 export class DeviceService {
-  private devices: Map<number, string>;
+  private deviceData: Map<number, string>;
+  private _devices: BehaviorSubject<DeviceConfig[]>;
+  public readonly devices: Observable<DeviceConfig[]>;
 
   constructor() {
-    this.devices = new Map();
+    this.deviceData = new Map();
+    this._devices = new BehaviorSubject<DeviceConfig[]>(this.getAll());
+    this.devices = this._devices.asObservable();
   }
 
-  public setAll(...data: DeviceConfig[]): void {
+  public get(id: number): string {
+    return this.deviceData.get(id);
+  }
+
+  public getAll(): DeviceConfig[] {
+    return this.asList(this.deviceData);
+  }
+
+  public asList(deviceData: Map<number, string>): DeviceConfig[] {
+    return Array.from(deviceData.entries()).map(([id, name]) => {
+      return { id, name } as DeviceConfig;
+    });
+  }
+
+  public setAll(data: DeviceConfig[]): void {
     data.forEach((elem) => {
       this.set(elem.id, elem.name);
     });
   }
 
-  public getAll(): DeviceConfig[] {
-    return Object.keys(this.devices).map((key) => {
-      const id = parseInt(key);
-      return { id, name: this.devices.get(id) } as DeviceConfig;
-    });
-  }
-
   public set(id: number, name: string): void {
-    this.devices.set(id, name);
-  }
-
-  public get(id: number): string {
-    return this.devices.get(id);
+    this.deviceData.set(id, name);
+    this._devices.next(this.getAll());
   }
 }
