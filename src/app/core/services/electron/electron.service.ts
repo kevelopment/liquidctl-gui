@@ -5,9 +5,9 @@ import * as childProcess from "child_process";
 // the resulting javascript file will look as if you never imported the module at all.
 import { ipcMain, ipcRenderer, remote, webFrame } from "electron";
 import { LiquidCtlEvents } from "electron/constants/events";
+import { DeviceConfig } from "electron/types/device-config";
 import * as fs from "fs";
 import { ColorChangeConfig } from "../../../../electron/types/color-change-config";
-import { DeviceConfig } from "electron/types/device-config";
 
 @Injectable({
   providedIn: "root",
@@ -70,7 +70,7 @@ export class ElectronService {
    *
    * @memberof ElectronService
    */
-  getList(): DeviceConfig[] {
+  getDeviceList(): DeviceConfig[] {
     const devices = this.ipcRenderer.sendSync(LiquidCtlEvents.GET_LIST);
     this.deviceService.setAll(devices);
     console.log(devices);
@@ -91,6 +91,6 @@ export class ElectronService {
   initialize(): void {
     // const response = this.ipcRenderer.sendSync(LiquidCtlEvents.INITIALIZE_ALL);
     // console.log("initialize:", response);
-    this.getList();
+    this.getDeviceList();
   }
 }

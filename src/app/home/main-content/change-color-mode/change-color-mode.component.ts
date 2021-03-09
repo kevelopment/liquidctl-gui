@@ -38,10 +38,12 @@ export class ChangeColorModeComponent implements OnInit {
       this.textColor = this.circleColor;
     }
 
-    return {circleColor: this.circleColor,
+    return {
+      circleColor: this.circleColor,
       textColor: this.textColor,
-      mode: Modes.FIXED};
-  } 
+      mode: Modes.FIXED,
+    };
+  }
 
   onModeChange(event: MatSelectChange): void {
     this.selectedMode = Modes.getByKey(event.value);

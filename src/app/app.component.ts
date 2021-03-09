@@ -28,6 +28,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.electronService.initialize();
-    this.electronService.getList();
+    this.electronService.getDeviceList();
   }
 }

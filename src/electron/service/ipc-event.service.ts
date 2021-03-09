@@ -1,11 +1,11 @@
 import * as ChildProcess from "child_process";
 import { IpcMain, IpcMainEvent } from "electron";
+import * as fs from "fs";
+import * as path from "path";
+import * as sudo from "sudo-prompt";
 import { LiquidCtlEvents } from "../constants/events";
 import { ColorChangeConfig } from "../types/color-change-config";
 import { DeviceConfig } from "../types/device-config";
-import * as sudo from "sudo-prompt";
-import * as fs from "fs";
-import * as path from "path";
 
 export class IpcEventService {
   /**
@@ -57,7 +57,7 @@ export class IpcEventService {
    * @param e
    * @param config
    */
-  saveColor(e: IpcMainEvent, config: any) {
+  saveColor(e: IpcMainEvent, config: any): void {
     console.log("creating the shell script @ usr/Libary");
     const liquidCfgLocation = "/usr/local/share/LiquidCfg.sh";
     const liquidCfgTemplateLocation = path.join(
@@ -65,30 +65,37 @@ export class IpcEventService {
       "../template-files/liquidcfg.sh"
     );
     const launchdLocation = "/Library/LaunchDaemons/liquidctl.plist";
-    const launchdTemplateLocation = path.join(__dirname, "../template-files/liquidctl.plist");
+    const launchdTemplateLocation = path.join(
+      __dirname,
+      "../template-files/liquidctl.plist"
+    );
 
     console.log("replacing the template file content");
     this.replaceTemplateContent(liquidCfgTemplateLocation, config);
 
     // if this is run for the first time
     // if (!fs.existsSync(liquidCfgLocation)) {
-    
+
     // 1. Create settings file at /usr/local/share/LiquidCfg.sh
     console.log(
       `copying the file from ${liquidCfgTemplateLocation} to ${liquidCfgLocation}`
     );
     fs.copyFileSync(liquidCfgTemplateLocation, liquidCfgLocation);
-    
+
     // 2. Make Settings file executable and editable.
     console.log(`executing chmod 777 on ${liquidCfgLocation}`);
     this.childProcess.execSync(`chmod 777 ${liquidCfgLocation}`);
-    
+
     // 3. Create startup file at /Library/LaunchDaemons.
     console.log(`creating the launchd config @ ${launchdLocation}`);
-    sudo.exec(`cp ${launchdTemplateLocation} ${launchdLocation}`, this.sudoOptions, function(e, s, a) {
-      if (e) throw e;
-      console.log("stdout: ", a);
-    });
+    sudo.exec(
+      `cp ${launchdTemplateLocation} ${launchdLocation}`,
+      this.sudoOptions,
+      function (e, s, a) {
+        if (e) throw e;
+        console.log("stdout: ", a);
+      }
+    );
 
     // fs.copyFileSync(
     //   path.join(__dirname, "../template-files/liquidctl.plist"),
@@ -97,9 +104,8 @@ export class IpcEventService {
     // 4. Add to system startup.
     console.log(`adding ${launchdLocation} to startup`);
     this.childProcess.execSync(`launchctl load ${launchdLocation}`);
-    
-    
-    console.log('added to startup.. should work now?');
+
+    console.log("added to startup.. should work now?");
     // } else {
     // console.log("the file already exists!");
     // otherwise we can simply overwrite the existing config file
